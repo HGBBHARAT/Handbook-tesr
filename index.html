@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>High Rock Military Corps Evaluation System (Max 50)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+        
+        /* New Theme Colors (Based on the blue image) */
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #0c182a; /* Darker blue background */
+            color: #d1e2f4; /* Light blue text */
+        }
+        .card { 
+            background-color: #1a2a47; /* Dark navy card background */
+            border: 1px solid #3c5275; 
+            border-radius: 0.75rem; /* rounded-xl */
+        }
+        .section-header { 
+            /* Gradient from the uploaded image for headers */
+            background: linear-gradient(135deg, #1f4287, #2a529e); 
+            border-radius: 0.75rem 0.75rem 0 0; 
+            padding: 0.75rem; 
+            border-bottom: 1px solid #3c5275; 
+        }
+        .score-input, .score-select { 
+            background-color: #0e1e36; /* Very dark input background */
+            border: 1px solid #3c5275; 
+            color: #d1e2f4; 
+            padding: 8px;
+            border-radius: 6px;
+            text-align: center;
+            appearance: none; 
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            width: 100%;
+        }
+        .score-input::-webkit-outer-spin-button,
+        .score-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        /* Custom down arrow for select */
+        .select-wrapper {
+            position: relative;
+        }
+        .select-wrapper::after {
+            content: '▼';
+            font-size: 0.75rem;
+            color: #7d96b8;
+            top: 50%;
+            right: 12px;
+            transform: translateY(-50%);
+            position: absolute;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-center mb-6 text-blue-400">
+            🛡️ High Rock Military Corps Evaluation System
+        </h1>
+        <p class="text-gray-400 mb-8 text-center">Calculates scores based on the 10-15-20-5 mark distribution (Total 50).</p>
+
+        <!-- Trainee/Trainer Info -->
+        <div class="card p-5 shadow-lg mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <input type="text" id="trainee-name" placeholder="Trainee Username" class="score-input col-span-1" />
+            <input type="number" id="trainee-discord-id" placeholder="Trainee Discord ID (Required)" class="score-input col-span-1" />
+            <input type="text" id="trainer-name" placeholder="Trainer Username" class="score-input col-span-1" />
+        </div>
+
+        <!-- SCORING SECTIONS -->
+        <div id="scoring-sections" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+            <!-- Section 1: Introduction (Max 10) -->
+            <div class="card shadow-lg">
+                <div class="section-header">
+                    <h3 class="text-lg font-semibold text-white">Section 1: Introduction (Max 10 Pts)</h3>
+                </div>
+                <div class="p-4 space-y-3">
+                    <div class="grid grid-cols-3 gap-3 items-center">
+                        <label for="s1-basic" class="text-sm col-span-2">Basic Introduction (Max 5):</label>
+                        <input type="number" id="s1-basic" data-max="5" placeholder="Max 5" class="score-input" oninput="calculateScore()" />
+                    </div>
+                    <div class="grid grid-cols-3 gap-3 items-center">
+                        <label for="s1-rank" class="text-sm col-span-2">Rank & Game passes (Max 5):</label>
+                        <input type="number" id="s1-rank" data-max="5" placeholder="Max 5" class="score-input" oninput="calculateScore()" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: Driving (Max 15) -->
+            <div class="card shadow-lg">
+                <div class="section-header">
+                    <h3 class="text-lg font-semibold text-white">Section 2: Driving (Max 15 Pts)</h3>
+                </div>
+                <div class="p-4 space-y-3">
+                    <!-- Crash Dropdown -->
+                    <div class="grid grid-cols-3 gap-3 items-center">
+                        <label for="s2-crashes" class="text-sm col-span-2">Crashes & Severity:</label>
+                        <div class="select-wrapper col-span-1">
+                            <select id="s2-crashes" class="score-select" onchange="handleCrashSelect(this)" >
+                                <option value="-1" selected>- Select Crashes - (5 Pts)</option> 
+                                <option value="0">0 Crashes (5 Pts)</option>
+                                <option value="1">1 Crash (4 Pts)</option>
+                                <option value="2">2 Crashes (3 Pts)</option>
+                                <option value="3">3 Crashes (2 Pts)</option>
+                                <option value="4">4 Crashes (1 Pt)</option>
+                                <option value="5">5 Crashes (0 Pts)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-3 items-center">
+                        <label for="s2-rules" class="text-sm col-span-2">Traffic Rules (Max 5):</label>
+                        <input type="number" id="s2-rules" data-max="5" placeholder="Max 5" class="score-input" oninput="calculateScore()" />
+                    </div>
+                    <div class="grid grid-cols-3 gap-3 items-center">
+                        <label for="s2-handling" class="text-sm col-span-2">Vehicle Handing (Max 5):</label>
+                        <input type="number" id="s2-handling" data-max="5" placeholder="Max 5" class="score-input" oninput="calculateScore()" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 3: Raiding (Max 20) -->
+            <div class="card shadow-lg col-span-1 lg:col-span-2">
+                <div class="section-header">
+                    <h3 class="text-lg font-semibold text-white">Section 3: Raiding (Max 20 Pts)</h3>
+                </div>
+                <div class="p-4 space-y-3 grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="col-span-1">
+                        <label for="s3-outdoor" class="text-xs mb-1 block text-gray-400">Outdoor Scanning (Max 5):</label>
+                        <input type="number" id="s3-outdoor" data-max="5" placeholder="Max 5" class="score-input" oninput="calculateScore()" />
+                    </div>
+                    <div class="col-span-1">
+                        <label for="s3-indoor" class="text-xs mb-1 block text-gray-400">Indoor Scanning (Max 5):</label>
+                        <input type="number" id="s3-indoor" data-max="5" placeholder="Max 5" class="score-input" oninput="calculateScore()" />
+                    </div>
+                    <div class="col-span-1">
+                        <label for="s3-shooting" class="text-xs mb-1 block text-gray-400">Shooting, Cover (Max 5):</label>
+                        <input type="number" id="s3-shooting" data-max="5" placeholder="Max 5" class="score-input" oninput="calculateScore()" />
+                    </div>
+                    <div class="col-span-1">
+                        <label for="s3-capture" class="text-xs mb-1 block text-gray-400">Capturing the Target (Max 5):</label>
+                        <input type="number" id="s3-capture" data-max="5" placeholder="Max 5" class="score-input" oninput="calculateScore()" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Overall SPaG Section (Max 5) -->
+        <div class="card shadow-lg mt-6">
+            <div class="section-header">
+                <h3 class="text-lg font-semibold text-white">Overall SPaG (Spelling, Punctuation, Grammar) (Max 5 Pts)</h3>
+            </div>
+            <div class="p-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="col-span-1">
+                    <label for="s4-spag" class="text-xs mb-1 block text-gray-400">SPaG Score:</label>
+                    <input type="number" id="s4-spag" data-max="5" placeholder="Max 5" class="score-input" oninput="calculateScore()" />
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Trainer Remarks Section -->
+        <div class="card shadow-lg mt-6">
+            <div class="section-header">
+                <h3 class="text-lg font-semibold text-white">Trainer's Final Remarks</h3>
+            </div>
+            <div class="p-4">
+                <textarea id="trainer-remarks" placeholder="Detailed remarks and feedback for the Trainee (will be included in the Discord post)." class="score-input h-24 w-full resize-none"></textarea>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div class="mt-10 pt-6 border-t border-gray-600">
+            <h2 class="text-3xl font-bold text-white mb-4">Final Results</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-lg font-semibold">
+                <div class="bg-gray-800 p-4 rounded-lg flex justify-between items-center text-gray-300 col-span-1 sm:col-span-2">
+                    <span class="text-xl">FINAL EVALUATION SCORE (Max 50, Pass: 30):</span>
+                    <span id="final-score" class="text-3xl text-blue-400">0</span>
+                </div>
+            </div>
+
+            <!-- Pass/Fail Announcement -->
+            <div id="result-message" class="mt-6 p-4 rounded-lg text-center font-bold text-xl transition-all duration-300 min-h-[4rem] flex items-center justify-center border border-gray-600 text-gray-400">
+                Enter scores to calculate result.
+            </div>
+
+            <!-- Discord Tool -->
+            <button id="copy-discord-btn" class="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200 shadow-lg" onclick="copyDiscordResult()">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline-block mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-1.125a2 2 0 00-1.75-1.975l-.364-.073a2 2 0 01-1.636-.217L12 14.78l-2.249 1.124a2 2 0 01-1.636.217l-.364.073A2 2 0 004 18V7a2 2 0 012-2h2m6 0V3m0 2v2m0 0h2m-2 0h-2m2 0V3m0 2v2m0 0h2m-2 0h-2M6 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2H8a2 2 0 01-2-2z" />
+                </svg>
+                Copy Discord Result to Clipboard
+            </button>
+            <div id="copy-message" class="text-center text-sm text-green-400 mt-2 hidden">Result copied successfully!</div>
+        </div>
+    </div>
+
+    <script>
+        // --- STATE & CONSTANTS ---
+        const MAX_TOTAL = 50;
+        const PASS_SCORE = 30; // 60% of 50
+        
+        const S1_MAX = 10;
+        const S2_MAX = 15;
+        const S3_MAX = 20; // Raiding Max
+        const S4_MAX = 5;  // SPaG Max
+        
+        // Tracks if the user has selected a valid crash option (not the initial -1)
+        let isCrashOptionSelected = false;
+
+        /**
+         * Logic to handle the select change and disable the default option.
+         */
+        function handleCrashSelect(selectElement) {
+            const selectedValue = selectElement.value;
+            
+            if (selectedValue !== '-1') {
+                isCrashOptionSelected = true;
+                // Once a real option is selected, disable the default '-1' option
+                const defaultOption = selectElement.querySelector('option[value="-1"]');
+                if (defaultOption) {
+                    defaultOption.disabled = true;
+                }
+            }
+            
+            calculateScore();
+        }
+
+        /**
+         * Converts crash count value to score.
+         * Value '-1' is the initial 'Select' option, which carries 5 points.
+         */
+        function getCrashScore(value) {
+            const crashCount = parseInt(value);
+            
+            if (crashCount === -1) {
+                // Initial score for the unselected state is 5 points (as requested)
+                return { score: 5, crashText: 'Unselected' };
+            }
+            
+            // Score decreases by 1 for each crash, starting at 5
+            const score = Math.max(0, 5 - crashCount);
+            return { score: score, crashText: `${crashCount} Crashes` };
+        }
+
+        /**
+         * Gets the integer value of an input field, capped at its data-max attribute.
+         */
+        function getCappedInputValue(id) {
+            const input = document.getElementById(id);
+            if (!input) return 0; 
+
+            const value = parseInt(input.value) || 0;
+            const max = parseInt(input.getAttribute('data-max'));
+            
+            let result = value;
+            if (value > max) {
+                result = max;
+                input.value = max; 
+            } else if (value < 0) {
+                result = 0;
+                input.value = 0; 
+            }
+            return result;
+        }
+
+        /**
+         * Calculates the total scores and updates the UI.
+         */
+        function calculateScore() {
+            let finalScore = 0;
+            
+            // --- Section 1: Introduction (Max 10) ---
+            const s1Basic = getCappedInputValue('s1-basic');
+            const s1Rank = getCappedInputValue('s1-rank');
+            const s1Score = s1Basic + s1Rank;
+            
+            // --- Section 2: Driving (Max 15) ---
+            const s2CrashesSelect = document.getElementById('s2-crashes').value;
+            const crashResult = getCrashScore(s2CrashesSelect);
+            const s2Rules = getCappedInputValue('s2-rules');
+            const s2Handling = getCappedInputValue('s2-handling');
+
+            let s2Score; 
+            
+            s2Score = crashResult.score + s2Rules + s2Handling;
+            s2Score = Math.min(s2Score, S2_MAX);
+
+
+            // --- Section 3: Raiding (Max 20) ---
+            const s3Outdoor = getCappedInputValue('s3-outdoor');
+            const s3Indoor = getCappedInputValue('s3-indoor');
+            const s3Shooting = getCappedInputValue('s3-shooting');
+            const s3Capture = getCappedInputValue('s3-capture');
+            const s3ScoreRaw = s3Outdoor + s3Indoor + s3Shooting + s3Capture;
+            const s3Score = Math.min(s3ScoreRaw, S3_MAX); // Capped at 20
+
+
+            // --- Section 4: SPaG (Max 5) ---
+            const s4Spag = getCappedInputValue('s4-spag');
+            const s4Score = s4Spag;
+
+            
+            // --- Final Score Calculation ---
+            finalScore = s1Score + s2Score + s3Score + s4Score;
+
+            // Update DOM elements
+            document.getElementById('final-score').textContent = finalScore;
+
+            updateResultMessage(finalScore);
+        }
+
+        /**
+         * Updates the result message box with Pass/Fail status.
+         */
+        function updateResultMessage(score) {
+            const resultBox = document.getElementById('result-message');
+            
+            // Reset base classes
+            resultBox.className = 'mt-6 p-4 rounded-lg text-center font-bold text-xl transition-all duration-300 min-h-[4rem] flex items-center justify-center';
+            
+            // Check if any score has been entered beyond the default
+            const allInputtedValues = Array.from(document.querySelectorAll('.score-input'))
+                                        .map(el => parseInt(el.value) || 0)
+                                        .reduce((a, b) => a + b, 0);
+            
+            const crashSelectValue = document.getElementById('s2-crashes').value;
+            // Only consider it 'started' if inputs > 0 OR crash is definitively selected
+            const isStarted = allInputtedValues > 0 || crashSelectValue !== '-1';
+
+            if (!isStarted) {
+                resultBox.classList.add('border', 'border-gray-600', 'text-gray-400');
+                resultBox.textContent = 'Enter scores to calculate result.';
+                return;
+            }
+
+            if (score >= PASS_SCORE) {
+                // PASSED SCRIPT
+                resultBox.classList.add('bg-green-700', 'text-white', 'shadow-lg', 'shadow-green-700/50');
+                resultBox.textContent = `PASSED! Final Score: ${score}/${MAX_TOTAL} (Pass Threshold: ${PASS_SCORE})`;
+            } else {
+                // FAILED SCRIPT
+                resultBox.classList.add('bg-red-700', 'text-white', 'shadow-lg', 'shadow-red-700/50');
+                resultBox.textContent = `FAILED. Final Score: ${score}/${MAX_TOTAL} (Requires ${PASS_SCORE} to Pass)`;
+            }
+        }
+
+        /**
+         * Generates the markdown-formatted Discord message.
+         */
+        function generateDiscordMessage() {
+            const traineeName = document.getElementById('trainee-name').value.trim() || "N/A";
+            const trainerName = document.getElementById('trainer-name').value.trim() || "N/A";
+            const discordId = document.getElementById('trainee-discord-id').value.trim() || "";
+            const remarks = document.getElementById('trainer-remarks').value.trim() || "No specific remarks provided by the trainer.";
+
+            // --- Section 1 Scores ---
+            const s1Basic = getCappedInputValue('s1-basic');
+            const s1Rank = getCappedInputValue('s1-rank');
+            const s1Score = s1Basic + s1Rank;
+            
+            // --- Section 2 Scores ---
+            const s2CrashesSelect = document.getElementById('s2-crashes').value;
+            const crashResult = getCrashScore(s2CrashesSelect);
+            const s2Rules = getCappedInputValue('s2-rules');
+            const s2Handling = getCappedInputValue('s2-handling');
+            
+            const crashText = crashResult.crashText; 
+            const crashPts = crashResult.score;
+
+            let s2Score = crashPts + s2Rules + s2Handling;
+            s2Score = Math.min(s2Score, S2_MAX); // Should be max 15
+            
+            // --- Section 3 Scores ---
+            const s3Outdoor = getCappedInputValue('s3-outdoor');
+            const s3Indoor = getCappedInputValue('s3-indoor');
+            const s3Shooting = getCappedInputValue('s3-shooting');
+            const s3Capture = getCappedInputValue('s3-capture');
+            const s3ScoreRaw = s3Outdoor + s3Indoor + s3Shooting + s3Capture;
+            const s3Score = Math.min(s3ScoreRaw, S3_MAX); // Capped at 20
+
+            // --- Section 4 Scores (SPaG) ---
+            const s4Spag = getCappedInputValue('s4-spag');
+            const s4Score = s4Spag;
+            
+            // --- Final Calculations ---
+            const finalScore = s1Score + s2Score + s3Score + s4Score;
+            const resultStatus = finalScore >= PASS_SCORE ? "PASSED ✅" : "FAILED ❌";
+
+            // Check if Discord ID is a valid number string for a ping
+            const hasDiscordId = /^\d+$/.test(discordId); 
+            
+            const messageParts = [];
+
+            // 1. Add the trainee ping, wrapped in spoiler tags (||@ID||)
+            if (hasDiscordId) {
+                messageParts.push(`|| <@${discordId}> ||`);
+            }
+            
+            // 2. Add the report body
+            messageParts.push(
+                `## 🛡️ High Rock Military Corps Evaluation Report`,
+                `> **Trainee:** ${traineeName}`, // Trainee Name is VISIBLE
+                `> **Trainer:** ${trainerName}`,
+                `> **Final Result:** __${resultStatus}__`,
+                `> **Total Score:** **${finalScore}/${MAX_TOTAL}** (Passing Score: ${PASS_SCORE})`,
+                `---`,
+                `**__SCORE BREAKDOWN__**`,
+                `\u2022 **Section 1 (Introduction - ${S1_MAX} Pts):** ${s1Score}/${S1_MAX} (Basic: ${s1Basic}/5, Rank/Gamepass: ${s1Rank}/5)`,
+                `\u2022 **Section 2 (Driving - ${S2_MAX} Pts):** ${s2Score}/${S2_MAX}`,
+                `   - Crashes: (${crashText} - ${crashPts}/5)`,
+                `   - Traffic Rules: ${s2Rules}/5`,
+                `   - Vehicle Handing: ${s2Handling}/5`,
+                `\u2022 **Section 3 (Raiding - ${S3_MAX} Pts):** ${s3Score}/${S3_MAX}`,
+                `   - Outdoor Scanning: ${s3Outdoor}/5`,
+                `   - Indoor Scanning: ${s3Indoor}/5`,
+                `   - Shooting/Cover: ${s3Shooting}/5`,
+                `   - Capturing Target: ${s3Capture}/5`,
+                `\u2022 **Overall SPaG (S4 - ${S4_MAX} Pts):** ${s4Score}/${S4_MAX}`,
+                `---`,
+                `**Trainer's Remarks:**`,
+                `${remarks}`,
+                `---`
+            );
+
+            return messageParts.filter(line => line !== '').join('\n');
+        }
+
+        /**
+         * Copies the generated Discord message to the clipboard.
+         */
+        async function copyDiscordResult() {
+            const message = generateDiscordMessage();
+            const copyMessageDiv = document.getElementById('copy-message');
+
+            try {
+                // Use the clipboard API
+                await navigator.clipboard.writeText(message);
+                copyMessageDiv.textContent = 'Discord result message copied to clipboard!';
+            } catch (err) {
+                // Fallback for restricted environments
+                const textarea = document.createElement('textarea');
+                textarea.value = message;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                copyMessageDiv.textContent = 'Discord result message copied (using fallback)!';
+            }
+            
+            // Show confirmation message
+            copyMessageDiv.classList.remove('hidden');
+            setTimeout(() => {
+                copyMessageDiv.classList.add('hidden');
+            }, 3000);
+        }
+
+        // Initial calculation on page load
+        window.onload = calculateScore;
+    </script>
+</body>
+</html>
