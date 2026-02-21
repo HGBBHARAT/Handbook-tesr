@@ -3,467 +3,256 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>High Rock Military Corps Evaluation System (Max 50)</title>
+    <title>HRPB | Secure Staff Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@300;600;900&display=swap');
         
-        /* New Theme Colors (Based on the blue image) */
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: #0c182a; /* Darker blue background */
-            color: #d1e2f4; /* Light blue text */
+        :root {
+            --accent: #B07D4F; /* Burnt Copper */
+            --bg-dark: #0D0D0D;
+            --panel: #161616;
         }
-        .card { 
-            background-color: #1a2a47; /* Dark navy card background */
-            border: 1px solid #3c5275; 
-            border-radius: 0.75rem; /* rounded-xl */
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-dark);
+            color: #d1d5db;
+            overflow: hidden;
         }
-        .section-header { 
-            /* Gradient from the uploaded image for headers */
-            background: linear-gradient(135deg, #1f4287, #2a529e); 
-            border-radius: 0.75rem 0.75rem 0 0; 
-            padding: 0.75rem; 
-            border-bottom: 1px solid #3c5275; 
-        }
-        .score-input, .score-select { 
-            background-color: #0e1e36; /* Very dark input background */
-            border: 1px solid #3c5275; 
-            color: #d1e2f4; 
-            padding: 8px;
-            border-radius: 6px;
-            text-align: center;
-            appearance: none; 
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            width: 100%;
-        }
-        .score-input::-webkit-outer-spin-button,
-        .score-input::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-        /* Custom down arrow for select */
-        .select-wrapper {
+
+        .mono { font-family: 'JetBrains Mono', monospace; }
+
+        .sidebar-item {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
+            overflow: hidden;
         }
-        .select-wrapper::after {
-            content: '▼';
-            font-size: 0.75rem;
-            color: #7d96b8;
-            top: 50%;
-            right: 12px;
-            transform: translateY(-50%);
-            position: absolute;
-            pointer-events: none;
+
+        .sidebar-item.active {
+            background: linear-gradient(90deg, rgba(176, 125, 79, 0.2) 0%, transparent 100%);
+            color: var(--accent);
+            border-right: 3px solid var(--accent);
+        }
+
+        .rule-card {
+            background: var(--panel);
+            border: 1px solid #222;
+            transition: border 0.3s ease;
+        }
+
+        .rule-card:hover {
+            border-color: var(--accent);
+        }
+
+        .hidden-section { display: none; }
+
+        /* AI Assistant Styling */
+        #ai-container {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            z-index: 1000;
+        }
+
+        #chat-window {
+            display: none;
+            width: 380px;
+            height: 500px;
+            background: #111;
+            border: 1px solid var(--accent);
+            box-shadow: 0 10px 50px rgba(0,0,0,0.8);
         }
     </style>
 </head>
-<body class="p-4 md:p-8">
+<body class="flex h-screen w-screen">
 
-    <div class="max-w-4xl mx-auto">
-        <h1 class="text-3xl font-bold text-center mb-6 text-blue-400">
-            🛡️ High Rock Military Corps Evaluation System
-        </h1>
-        <p class="text-gray-400 mb-8 text-center">Calculates scores based on the 10-15-20-5 mark distribution (Total 50).</p>
+<div id="login-screen" class="fixed inset-0 z-[2000] bg-black flex items-center justify-center">
+    <div class="p-12 text-center max-w-sm w-full bg-[#080808] border border-white/5 shadow-2xl">
+        <img src="https://i.postimg.cc/mD7XF1h9/b8b432bd184c0baac9e9e3a638c76cf9.png" class="w-24 mx-auto mb-6 grayscale hover:grayscale-0 transition-all duration-700" alt="HRPB">
+        <h1 class="mono text-lg font-bold tracking-widest text-white mb-2">HRPB TERMINAL</h1>
+        <p class="text-[10px] text-gray-600 mb-8 uppercase tracking-[0.4em]">Secure Access Required</p>
+        <button onclick="handleLogin()" class="w-full border border-[#B07D4F]/30 hover:bg-[#B07D4F] hover:text-black text-[#B07D4F] py-3 text-xs font-bold tracking-widest transition-all">
+            LOGIN VIA DISCORD
+        </button>
+    </div>
+</div>
 
-        <!-- Trainee/Trainer Info -->
-        <div class="card p-5 shadow-lg mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-            <input type="text" id="trainee-name" placeholder="Trainee Username" class="score-input col-span-1" />
-            <input type="number" id="trainee-discord-id" placeholder="Trainee Discord ID (Required)" class="score-input col-span-1" />
-            <input type="text" id="trainer-name" placeholder="Trainer Username" class="score-input col-span-1" />
-        </div>
-
-        <!-- SCORING SECTIONS -->
-        <div id="scoring-sections" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-            <!-- Section 1: Introduction (Max 10) -->
-            <div class="card shadow-lg">
-                <div class="section-header">
-                    <h3 class="text-lg font-semibold text-white">Section 1: Introduction (Max 10 Pts)</h3>
-                </div>
-                <div class="p-4 space-y-3">
-                    <div class="grid grid-cols-3 gap-3 items-center">
-                        <label for="s1-basic" class="text-sm col-span-2">Basic Introduction (Max 5):</label>
-                        <input type="number" id="s1-basic" data-max="5" placeholder="Max 5" class="score-input" oninput="calculateScore()" />
-                    </div>
-                    <div class="grid grid-cols-3 gap-3 items-center">
-                        <label for="s1-rank" class="text-sm col-span-2">Rank & Game passes (Max 5):</label>
-                        <input type="number" id="s1-rank" data-max="5" placeholder="Max 5" class="score-input" oninput="calculateScore()" />
-                    </div>
-                </div>
-            </div>
-
-            <!-- Section 2: Driving (Max 15) -->
-            <div class="card shadow-lg">
-                <div class="section-header">
-                    <h3 class="text-lg font-semibold text-white">Section 2: Driving (Max 15 Pts)</h3>
-                </div>
-                <div class="p-4 space-y-3">
-                    <!-- Crash Dropdown -->
-                    <div class="grid grid-cols-3 gap-3 items-center">
-                        <label for="s2-crashes" class="text-sm col-span-2">Crashes & Severity:</label>
-                        <div class="select-wrapper col-span-1">
-                            <select id="s2-crashes" class="score-select" onchange="handleCrashSelect(this)" >
-                                <option value="-1" selected>- Select Crashes - (5 Pts)</option> 
-                                <option value="0">0 Crashes (5 Pts)</option>
-                                <option value="1">1 Crash (4 Pts)</option>
-                                <option value="2">2 Crashes (3 Pts)</option>
-                                <option value="3">3 Crashes (2 Pts)</option>
-                                <option value="4">4 Crashes (1 Pt)</option>
-                                <option value="5">5 Crashes (0 Pts)</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-3 gap-3 items-center">
-                        <label for="s2-rules" class="text-sm col-span-2">Traffic Rules (Max 5):</label>
-                        <input type="number" id="s2-rules" data-max="5" placeholder="Max 5" class="score-input" oninput="calculateScore()" />
-                    </div>
-                    <div class="grid grid-cols-3 gap-3 items-center">
-                        <label for="s2-handling" class="text-sm col-span-2">Vehicle Handing (Max 5):</label>
-                        <input type="number" id="s2-handling" data-max="5" placeholder="Max 5" class="score-input" oninput="calculateScore()" />
-                    </div>
-                </div>
-            </div>
-
-            <!-- Section 3: Raiding (Max 20) -->
-            <div class="card shadow-lg col-span-1 lg:col-span-2">
-                <div class="section-header">
-                    <h3 class="text-lg font-semibold text-white">Section 3: Raiding (Max 20 Pts)</h3>
-                </div>
-                <div class="p-4 space-y-3 grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="col-span-1">
-                        <label for="s3-outdoor" class="text-xs mb-1 block text-gray-400">Outdoor Scanning (Max 5):</label>
-                        <input type="number" id="s3-outdoor" data-max="5" placeholder="Max 5" class="score-input" oninput="calculateScore()" />
-                    </div>
-                    <div class="col-span-1">
-                        <label for="s3-indoor" class="text-xs mb-1 block text-gray-400">Indoor Scanning (Max 5):</label>
-                        <input type="number" id="s3-indoor" data-max="5" placeholder="Max 5" class="score-input" oninput="calculateScore()" />
-                    </div>
-                    <div class="col-span-1">
-                        <label for="s3-shooting" class="text-xs mb-1 block text-gray-400">Shooting, Cover (Max 5):</label>
-                        <input type="number" id="s3-shooting" data-max="5" placeholder="Max 5" class="score-input" oninput="calculateScore()" />
-                    </div>
-                    <div class="col-span-1">
-                        <label for="s3-capture" class="text-xs mb-1 block text-gray-400">Capturing the Target (Max 5):</label>
-                        <input type="number" id="s3-capture" data-max="5" placeholder="Max 5" class="score-input" oninput="calculateScore()" />
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Overall SPaG Section (Max 5) -->
-        <div class="card shadow-lg mt-6">
-            <div class="section-header">
-                <h3 class="text-lg font-semibold text-white">Overall SPaG (Spelling, Punctuation, Grammar) (Max 5 Pts)</h3>
-            </div>
-            <div class="p-4 grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div class="col-span-1">
-                    <label for="s4-spag" class="text-xs mb-1 block text-gray-400">SPaG Score:</label>
-                    <input type="number" id="s4-spag" data-max="5" placeholder="Max 5" class="score-input" oninput="calculateScore()" />
-                </div>
-            </div>
-        </div>
-
-
-        <!-- Trainer Remarks Section -->
-        <div class="card shadow-lg mt-6">
-            <div class="section-header">
-                <h3 class="text-lg font-semibold text-white">Trainer's Final Remarks</h3>
-            </div>
-            <div class="p-4">
-                <textarea id="trainer-remarks" placeholder="Detailed remarks and feedback for the Trainee (will be included in the Discord post)." class="score-input h-24 w-full resize-none"></textarea>
-            </div>
-        </div>
-
-        <!-- Results Section -->
-        <div class="mt-10 pt-6 border-t border-gray-600">
-            <h2 class="text-3xl font-bold text-white mb-4">Final Results</h2>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-lg font-semibold">
-                <div class="bg-gray-800 p-4 rounded-lg flex justify-between items-center text-gray-300 col-span-1 sm:col-span-2">
-                    <span class="text-xl">FINAL EVALUATION SCORE (Max 50, Pass: 30):</span>
-                    <span id="final-score" class="text-3xl text-blue-400">0</span>
-                </div>
-            </div>
-
-            <!-- Pass/Fail Announcement -->
-            <div id="result-message" class="mt-6 p-4 rounded-lg text-center font-bold text-xl transition-all duration-300 min-h-[4rem] flex items-center justify-center border border-gray-600 text-gray-400">
-                Enter scores to calculate result.
-            </div>
-
-            <!-- Discord Tool -->
-            <button id="copy-discord-btn" class="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200 shadow-lg" onclick="copyDiscordResult()">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline-block mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-1.125a2 2 0 00-1.75-1.975l-.364-.073a2 2 0 01-1.636-.217L12 14.78l-2.249 1.124a2 2 0 01-1.636.217l-.364.073A2 2 0 004 18V7a2 2 0 012-2h2m6 0V3m0 2v2m0 0h2m-2 0h-2m2 0V3m0 2v2m0 0h2m-2 0h-2M6 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2H8a2 2 0 01-2-2z" />
-                </svg>
-                Copy Discord Result to Clipboard
-            </button>
-            <div id="copy-message" class="text-center text-sm text-green-400 mt-2 hidden">Result copied successfully!</div>
-        </div>
+<aside class="w-72 bg-[#050505] border-r border-white/5 flex flex-col">
+    <div class="p-8">
+        <img src="https://i.postimg.cc/mD7XF1h9/b8b432bd184c0baac9e9e3a638c76cf9.png" class="w-12 mb-4" alt="Logo">
+        <h2 class="mono text-[11px] font-bold text-[#B07D4F]">DATABASE_V2.0</h2>
     </div>
 
-    <script>
-        // --- STATE & CONSTANTS ---
-        const MAX_TOTAL = 50;
-        const PASS_SCORE = 30; // 60% of 50
+    <nav class="flex-1 space-y-1">
+        <button onclick="showSection('staff-conduct')" class="sidebar-item active w-full p-4 px-8 text-left text-xs font-bold tracking-tighter uppercase">01. Staff Conduct</button>
+        <button onclick="showSection('admin-tools')" class="sidebar-item w-full p-4 px-8 text-left text-xs font-bold tracking-tighter uppercase">02. Command Protocols</button>
+        <button onclick="showSection('punishments')" class="sidebar-item w-full p-4 px-8 text-left text-xs font-bold tracking-tighter uppercase">03. Punishment Scale</button>
+        <button onclick="showSection('game-rules')" class="sidebar-item w-full p-4 px-8 text-left text-xs font-bold tracking-tighter uppercase">04. In-Game Rules</button>
+        <button onclick="showSection('coc')" class="sidebar-item w-full p-4 px-8 text-left text-xs font-bold tracking-tighter uppercase">05. Rank Hierarchy</button>
+    </nav>
+
+    <div class="p-6 border-t border-white/5">
+        <div class="mono text-[9px] text-gray-600">OPERATOR</div>
+        <div class="text-xs font-bold text-white uppercase tracking-widest">Authorized User</div>
+    </div>
+</aside>
+
+<main class="flex-1 overflow-y-auto p-12 bg-[#0a0a0a]">
+    
+    <section id="staff-conduct" class="content-section space-y-6">
+        <div class="mb-12">
+            <h1 class="text-5xl font-black text-white italic tracking-tighter">CONDUCT</h1>
+            <p class="mono text-xs text-[#B07D4F]">General Administrative Expectations</p>
+        </div>
+        <div class="grid gap-4" id="staff-conduct-list"></div>
+    </section>
+
+    <section id="admin-tools" class="content-section hidden-section space-y-6">
+        <div class="mb-12 text-right">
+            <h1 class="text-5xl font-black text-white italic tracking-tighter">COMMANDS</h1>
+            <p class="mono text-xs text-[#B07D4F]">Restricted Execution Protocol</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="rule-card p-6 border-l-4 border-l-[#B07D4F]">
+                <span class="mono text-[10px] text-[#B07D4F]">CMD_PROTO_01</span>
+                <h3 class="font-bold text-white mb-2">Usage Length</h3>
+                <p class="text-xs text-gray-400">Staff must use 4+ letters for commands (e.g. :view Jydx) and 7+ letters for kicks/bans.</p>
+            </div>
+            <div class="rule-card p-6">
+                <span class="mono text-[10px] text-[#B07D4F]">CMD_PROTO_02</span>
+                <h3 class="font-bold text-white mb-2">Public Comms</h3>
+                <p class="text-xs text-gray-400">Strictly no abuse of :h or :m. These are reserved for essential server-wide announcements only.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="game-rules" class="content-section hidden-section space-y-6">
+        <div class="mb-12">
+            <h1 class="text-5xl font-black text-white italic tracking-tighter">GAME RULES</h1>
+            <p class="mono text-xs text-[#B07D4F]">Public Enforcement Regulations</p>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-3" id="game-rules-grid"></div>
+    </section>
+
+    <section id="coc" class="content-section hidden-section space-y-6">
+        <div class="mb-12">
+            <h1 class="text-5xl font-black text-white italic tracking-tighter">HIERARCHY</h1>
+            <p class="mono text-xs text-[#B07D4F]">HRPB Chain of Command & Rank Caps</p>
+        </div>
+        <div class="space-y-4" id="coc-list"></div>
+    </section>
+
+</main>
+
+<div id="ai-container">
+    <div id="chat-window" class="flex flex-col rounded-t-xl overflow-hidden">
+        <div class="bg-[#B07D4F] p-4 flex justify-between items-center">
+            <span class="mono text-[10px] font-bold text-black uppercase tracking-widest">Gemini Neural Link</span>
+            <button onclick="toggleAI()" class="text-black font-bold">_</button>
+        </div>
+        <div id="chat-body" class="flex-1 p-4 overflow-y-auto text-[11px] space-y-4 bg-[#0a0a0a]">
+            <div class="text-[#B07D4F] italic border-b border-[#B07D4F]/20 pb-2">Terminal Ready. Awaiting queries on Handbook data or Math.</div>
+        </div>
+        <div class="p-4 bg-[#111] border-t border-white/5">
+            <input type="text" id="ai-input" onkeydown="if(event.key==='Enter') askAI()" placeholder="Execute query..." class="w-full bg-black border border-white/10 p-3 text-xs mono text-white focus:outline-none focus:border-[#B07D4F]">
+        </div>
+    </div>
+    <button onclick="toggleAI()" class="w-16 h-16 bg-white flex items-center justify-center hover:bg-[#B07D4F] transition-colors shadow-2xl">
+        <svg class="w-6 h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+    </button>
+</div>
+
+<script>
+    // --- DATABASE ---
+    const data = {
+        conduct: [
+            "Maintain flawless grammar, spelling, and punctuation.",
+            "Professionalism is non-negotiable at all times.",
+            "Responding to mod calls is the highest priority duty.",
+            "Kill-logs are not evidence; visual proof is required.",
+            "Correct callsigns and uniforms must be worn on-duty.",
+            "No AFK or RP while on duty. Moderation only."
+        ],
+        gameRules: [
+            { r: "Rule 1 | FRP", d: "All roleplays must withhold a realistic standard." },
+            { r: "Rule 2 | VDM", d: "Vehicle deathmatch is forbidden. No shooting cars without reason." },
+            { r: "Rule 3 | RDM", d: "Random Deathmatch is forbidden. Reason required to kill." },
+            { r: "Rule 4 | Gun Motion", d: "Must use 'grabs gun' for rifles against LEO." },
+            { r: "Rule 9 | Fear RP", d: "You must comply if a weapon is pointed at you." },
+            { r: "Rule 12 | Cop Baiting", d: "Seeking police attention for pursuits is forbidden." },
+            { r: "Rule 13 | Robberies", d: "5 min wait between robberies. Bank requires staff OK." },
+            { r: "Rule 17 | Group Limits", d: "Max 4 for general crime. Max 3 for jewelry store." }
+        ],
+        coc: [
+            { t: "Founder", r: ["Founder"], cap: "N/A" },
+            { t: "Ownership Team", r: ["Owner (1)", "Co-Owner (3)", "Trial Ownership (2)"], cap: "6 Total" },
+            { t: "Board of Directors", r: ["Director of Staff (1)", "Deputy Director (2)", "Assistant Director (3)"], cap: "6 Total" },
+            { t: "Executive Team", r: ["Senior Executive (4)", "Junior Executive (4)"], cap: "8 Total" }
+        ]
+    };
+
+    // --- RENDER ---
+    window.onload = () => {
+        if(localStorage.getItem('hrpb_token')) document.getElementById('login-screen').style.display = 'none';
         
-        const S1_MAX = 10;
-        const S2_MAX = 15;
-        const S3_MAX = 20; // Raiding Max
-        const S4_MAX = 5;  // SPaG Max
+        const conductCont = document.getElementById('staff-conduct-list');
+        data.conduct.forEach((rule, i) => {
+            conductCont.innerHTML += `<div class="rule-card p-4 flex gap-6 items-center"><span class="mono text-[#B07D4F]">0${i+1}</span><p class="text-sm font-light">${rule}</p></div>`;
+        });
+
+        const gameCont = document.getElementById('game-rules-grid');
+        data.gameRules.forEach(rule => {
+            gameCont.innerHTML += `<div class="rule-card p-5"><h3 class="mono text-[10px] text-[#B07D4F] mb-2">${rule.r}</h3><p class="text-[11px] text-gray-400">${rule.d}</p></div>`;
+        });
+
+        const cocCont = document.getElementById('coc-list');
+        data.coc.forEach(tier => {
+            cocCont.innerHTML += `<div class="border-l-2 border-[#B07D4F]/20 pl-6 py-4"><h4 class="mono text-[10px] text-gray-500 uppercase mb-2">${tier.t} — Limit: ${tier.cap}</h4><ul class="text-sm space-y-1">${tier.r.map(rank => `<li class="text-white font-bold tracking-tight">${rank}</li>`).join('')}</ul></div>`;
+        });
+    };
+
+    // --- FUNCTIONS ---
+    function handleLogin() {
+        localStorage.setItem('hrpb_token', 'active');
+        document.getElementById('login-screen').classList.add('opacity-0');
+        setTimeout(() => document.getElementById('login-screen').style.display = 'none', 500);
+    }
+
+    function showSection(id) {
+        document.querySelectorAll('.content-section').forEach(s => s.classList.add('hidden-section'));
+        document.getElementById(id).classList.remove('hidden-section');
+        document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+    }
+
+    function toggleAI() {
+        const win = document.getElementById('chat-window');
+        win.style.display = (win.style.display === 'flex') ? 'none' : 'flex';
+    }
+
+    function askAI() {
+        const input = document.getElementById('ai-input');
+        const body = document.getElementById('chat-body');
+        const q = input.value.toLowerCase();
         
-        // Tracks if the user has selected a valid crash option (not the initial -1)
-        let isCrashOptionSelected = false;
+        body.innerHTML += `<div class="text-right text-white font-bold opacity-50">QUERY: ${input.value}</div>`;
+        let res = "Unauthorized Query. I can only provide HRPB Regulations or Mathematical solutions.";
+        
+        // Math Engine
+        try { if(/^[0-9+\-*/().\s]+$/.test(q)) res = `RESULT: ${eval(q)}`; } catch(e) {}
 
-        /**
-         * Logic to handle the select change and disable the default option.
-         */
-        function handleCrashSelect(selectElement) {
-            const selectedValue = selectElement.value;
-            
-            if (selectedValue !== '-1') {
-                isCrashOptionSelected = true;
-                // Once a real option is selected, disable the default '-1' option
-                const defaultOption = selectElement.querySelector('option[value="-1"]');
-                if (defaultOption) {
-                    defaultOption.disabled = true;
-                }
-            }
-            
-            calculateScore();
-        }
+        // Rule Search
+        if(q.includes("rdm")) res = "Rule 3: Random Deathmatch is strictly prohibited. Valid RP reason required.";
+        if(q.includes("vdm")) res = "Rule 2: Vehicle Deathmatch is forbidden. No vehicle ramming/shooting without cause.";
+        if(q.includes("grammar")) res = "Administrative Protocol: Flawless grammar and punctuation is required for all staff.";
+        if(q.includes("frp")) res = "Rule 1: Fail Roleplay is prohibited. All actions must remain realistic.";
 
-        /**
-         * Converts crash count value to score.
-         * Value '-1' is the initial 'Select' option, which carries 5 points.
-         */
-        function getCrashScore(value) {
-            const crashCount = parseInt(value);
-            
-            if (crashCount === -1) {
-                // Initial score for the unselected state is 5 points (as requested)
-                return { score: 5, crashText: 'Unselected' };
-            }
-            
-            // Score decreases by 1 for each crash, starting at 5
-            const score = Math.max(0, 5 - crashCount);
-            return { score: score, crashText: `${crashCount} Crashes` };
-        }
+        body.innerHTML += `<div class="text-[#B07D4F] bg-white/5 p-3 border-l border-[#B07D4F]">SYSTEM: ${res}</div>`;
+        input.value = '';
+        body.scrollTop = body.scrollHeight;
+    }
+</script>
 
-        /**
-         * Gets the integer value of an input field, capped at its data-max attribute.
-         */
-        function getCappedInputValue(id) {
-            const input = document.getElementById(id);
-            if (!input) return 0; 
-
-            const value = parseInt(input.value) || 0;
-            const max = parseInt(input.getAttribute('data-max'));
-            
-            let result = value;
-            if (value > max) {
-                result = max;
-                input.value = max; 
-            } else if (value < 0) {
-                result = 0;
-                input.value = 0; 
-            }
-            return result;
-        }
-
-        /**
-         * Calculates the total scores and updates the UI.
-         */
-        function calculateScore() {
-            let finalScore = 0;
-            
-            // --- Section 1: Introduction (Max 10) ---
-            const s1Basic = getCappedInputValue('s1-basic');
-            const s1Rank = getCappedInputValue('s1-rank');
-            const s1Score = s1Basic + s1Rank;
-            
-            // --- Section 2: Driving (Max 15) ---
-            const s2CrashesSelect = document.getElementById('s2-crashes').value;
-            const crashResult = getCrashScore(s2CrashesSelect);
-            const s2Rules = getCappedInputValue('s2-rules');
-            const s2Handling = getCappedInputValue('s2-handling');
-
-            let s2Score; 
-            
-            s2Score = crashResult.score + s2Rules + s2Handling;
-            s2Score = Math.min(s2Score, S2_MAX);
-
-
-            // --- Section 3: Raiding (Max 20) ---
-            const s3Outdoor = getCappedInputValue('s3-outdoor');
-            const s3Indoor = getCappedInputValue('s3-indoor');
-            const s3Shooting = getCappedInputValue('s3-shooting');
-            const s3Capture = getCappedInputValue('s3-capture');
-            const s3ScoreRaw = s3Outdoor + s3Indoor + s3Shooting + s3Capture;
-            const s3Score = Math.min(s3ScoreRaw, S3_MAX); // Capped at 20
-
-
-            // --- Section 4: SPaG (Max 5) ---
-            const s4Spag = getCappedInputValue('s4-spag');
-            const s4Score = s4Spag;
-
-            
-            // --- Final Score Calculation ---
-            finalScore = s1Score + s2Score + s3Score + s4Score;
-
-            // Update DOM elements
-            document.getElementById('final-score').textContent = finalScore;
-
-            updateResultMessage(finalScore);
-        }
-
-        /**
-         * Updates the result message box with Pass/Fail status.
-         */
-        function updateResultMessage(score) {
-            const resultBox = document.getElementById('result-message');
-            
-            // Reset base classes
-            resultBox.className = 'mt-6 p-4 rounded-lg text-center font-bold text-xl transition-all duration-300 min-h-[4rem] flex items-center justify-center';
-            
-            // Check if any score has been entered beyond the default
-            const allInputtedValues = Array.from(document.querySelectorAll('.score-input'))
-                                        .map(el => parseInt(el.value) || 0)
-                                        .reduce((a, b) => a + b, 0);
-            
-            const crashSelectValue = document.getElementById('s2-crashes').value;
-            // Only consider it 'started' if inputs > 0 OR crash is definitively selected
-            const isStarted = allInputtedValues > 0 || crashSelectValue !== '-1';
-
-            if (!isStarted) {
-                resultBox.classList.add('border', 'border-gray-600', 'text-gray-400');
-                resultBox.textContent = 'Enter scores to calculate result.';
-                return;
-            }
-
-            if (score >= PASS_SCORE) {
-                // PASSED SCRIPT
-                resultBox.classList.add('bg-green-700', 'text-white', 'shadow-lg', 'shadow-green-700/50');
-                resultBox.textContent = `PASSED! Final Score: ${score}/${MAX_TOTAL} (Pass Threshold: ${PASS_SCORE})`;
-            } else {
-                // FAILED SCRIPT
-                resultBox.classList.add('bg-red-700', 'text-white', 'shadow-lg', 'shadow-red-700/50');
-                resultBox.textContent = `FAILED. Final Score: ${score}/${MAX_TOTAL} (Requires ${PASS_SCORE} to Pass)`;
-            }
-        }
-
-        /**
-         * Generates the markdown-formatted Discord message.
-         */
-        function generateDiscordMessage() {
-            const traineeName = document.getElementById('trainee-name').value.trim() || "N/A";
-            const trainerName = document.getElementById('trainer-name').value.trim() || "N/A";
-            const discordId = document.getElementById('trainee-discord-id').value.trim() || "";
-            const remarks = document.getElementById('trainer-remarks').value.trim() || "No specific remarks provided by the trainer.";
-
-            // --- Section 1 Scores ---
-            const s1Basic = getCappedInputValue('s1-basic');
-            const s1Rank = getCappedInputValue('s1-rank');
-            const s1Score = s1Basic + s1Rank;
-            
-            // --- Section 2 Scores ---
-            const s2CrashesSelect = document.getElementById('s2-crashes').value;
-            const crashResult = getCrashScore(s2CrashesSelect);
-            const s2Rules = getCappedInputValue('s2-rules');
-            const s2Handling = getCappedInputValue('s2-handling');
-            
-            const crashText = crashResult.crashText; 
-            const crashPts = crashResult.score;
-
-            let s2Score = crashPts + s2Rules + s2Handling;
-            s2Score = Math.min(s2Score, S2_MAX); // Should be max 15
-            
-            // --- Section 3 Scores ---
-            const s3Outdoor = getCappedInputValue('s3-outdoor');
-            const s3Indoor = getCappedInputValue('s3-indoor');
-            const s3Shooting = getCappedInputValue('s3-shooting');
-            const s3Capture = getCappedInputValue('s3-capture');
-            const s3ScoreRaw = s3Outdoor + s3Indoor + s3Shooting + s3Capture;
-            const s3Score = Math.min(s3ScoreRaw, S3_MAX); // Capped at 20
-
-            // --- Section 4 Scores (SPaG) ---
-            const s4Spag = getCappedInputValue('s4-spag');
-            const s4Score = s4Spag;
-            
-            // --- Final Calculations ---
-            const finalScore = s1Score + s2Score + s3Score + s4Score;
-            const resultStatus = finalScore >= PASS_SCORE ? "PASSED ✅" : "FAILED ❌";
-
-            // Check if Discord ID is a valid number string for a ping
-            const hasDiscordId = /^\d+$/.test(discordId); 
-            
-            const messageParts = [];
-
-            // 1. Add the trainee ping, wrapped in spoiler tags (||@ID||)
-            if (hasDiscordId) {
-                messageParts.push(`|| <@${discordId}> ||`);
-            }
-            
-            // 2. Add the report body
-            messageParts.push(
-                `## 🛡️ High Rock Military Corps Evaluation Report`,
-                `> **Trainee:** ${traineeName}`, // Trainee Name is VISIBLE
-                `> **Trainer:** ${trainerName}`,
-                `> **Final Result:** __${resultStatus}__`,
-                `> **Total Score:** **${finalScore}/${MAX_TOTAL}** (Passing Score: ${PASS_SCORE})`,
-                `---`,
-                `**__SCORE BREAKDOWN__**`,
-                `\u2022 **Section 1 (Introduction - ${S1_MAX} Pts):** ${s1Score}/${S1_MAX} (Basic: ${s1Basic}/5, Rank/Gamepass: ${s1Rank}/5)`,
-                `\u2022 **Section 2 (Driving - ${S2_MAX} Pts):** ${s2Score}/${S2_MAX}`,
-                `   - Crashes: (${crashText} - ${crashPts}/5)`,
-                `   - Traffic Rules: ${s2Rules}/5`,
-                `   - Vehicle Handing: ${s2Handling}/5`,
-                `\u2022 **Section 3 (Raiding - ${S3_MAX} Pts):** ${s3Score}/${S3_MAX}`,
-                `   - Outdoor Scanning: ${s3Outdoor}/5`,
-                `   - Indoor Scanning: ${s3Indoor}/5`,
-                `   - Shooting/Cover: ${s3Shooting}/5`,
-                `   - Capturing Target: ${s3Capture}/5`,
-                `\u2022 **Overall SPaG (S4 - ${S4_MAX} Pts):** ${s4Score}/${S4_MAX}`,
-                `---`,
-                `**Trainer's Remarks:**`,
-                `${remarks}`,
-                `---`
-            );
-
-            return messageParts.filter(line => line !== '').join('\n');
-        }
-
-        /**
-         * Copies the generated Discord message to the clipboard.
-         */
-        async function copyDiscordResult() {
-            const message = generateDiscordMessage();
-            const copyMessageDiv = document.getElementById('copy-message');
-
-            try {
-                // Use the clipboard API
-                await navigator.clipboard.writeText(message);
-                copyMessageDiv.textContent = 'Discord result message copied to clipboard!';
-            } catch (err) {
-                // Fallback for restricted environments
-                const textarea = document.createElement('textarea');
-                textarea.value = message;
-                document.body.appendChild(textarea);
-                textarea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textarea);
-                copyMessageDiv.textContent = 'Discord result message copied (using fallback)!';
-            }
-            
-            // Show confirmation message
-            copyMessageDiv.classList.remove('hidden');
-            setTimeout(() => {
-                copyMessageDiv.classList.add('hidden');
-            }, 3000);
-        }
-
-        // Initial calculation on page load
-        window.onload = calculateScore;
-    </script>
 </body>
 </html>
