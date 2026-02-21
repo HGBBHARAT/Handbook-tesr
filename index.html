@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HRPB Staff Handbook | Revamped</title>
+    <title>HRPB Staff Handbook | Full Revamp</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
         :root {
-            --color-bg-primary: #020617;
-            --color-bg-secondary: #0f172a;
+            --color-bg-primary: #000A1A;
+            --color-bg-secondary: #0A1929;
             --color-accent-blue: #38bdf8;
             --color-accent-gold: #fbbf24;
-            --color-enforced: rgba(34, 197, 94, 0.15);
-            --color-caution: rgba(234, 179, 8, 0.15);
+            --color-enforced: rgba(34, 197, 94, 0.2);
+            --color-caution: rgba(234, 179, 8, 0.2);
         }
         body {
             font-family: 'Inter', sans-serif;
@@ -21,192 +21,248 @@
             color: #f1f5f9;
             scroll-behavior: smooth;
         }
-        .enforced-rule { background-color: var(--color-enforced); border-left: 4px solid #22c55e; }
-        .caution-rule { background-color: var(--color-caution); border-left: 4px solid #eab308; }
-        .branch-line { color: #475569; font-weight: bold; margin-right: 8px; }
-        .rank-tag { font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; margin-left: 5px; font-weight: bold; text-transform: uppercase; }
+        /* Layout Structure */
+        .sticky-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: rgba(0, 10, 26, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid var(--color-accent-blue);
+        }
+        .main-container { margin-top: 100px; display: flex; }
+        .sidebar {
+            width: 300px;
+            position: fixed;
+            top: 100px;
+            bottom: 0;
+            left: 0;
+            overflow-y: auto;
+            background: var(--color-bg-secondary);
+            border-right: 1px solid #1e293b;
+            padding: 1.5rem;
+        }
+        .content-area { flex: 1; margin-left: 300px; padding: 2rem; }
+
+        /* Navigation Buttons */
+        .nav-btn {
+            display: block;
+            width: 100%;
+            padding: 1.25rem;
+            margin-bottom: 0.75rem;
+            background: #1e293b;
+            color: #cbd5e1;
+            border-radius: 12px;
+            font-weight: 700;
+            text-align: left;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+        .nav-btn:hover { background: #334155; color: white; border-color: var(--color-accent-blue); transform: translateX(5px); }
+        
+        /* Specialized Rules Styles */
+        .enforced-rule { background-color: var(--color-enforced); border-left: 6px solid #22c55e; }
+        .caution-rule { background-color: var(--color-caution); border-left: 6px solid #eab308; }
+        .standard-rule { background-color: #0f172a; border-left: 6px solid #334155; }
         
         /* Table Styles */
-        table { width: 100%; border-collapse: collapse; background: #0f172a; border-radius: 8px; overflow: hidden; }
-        th, td { padding: 12px; border: 1px solid #1e293b; text-align: left; font-size: 0.85rem; }
-        th { background: #1e293b; color: var(--color-accent-blue); text-transform: uppercase; }
-        
-        /* Mobile Menu */
-        #mobile-menu { display: none; }
+        .table-wrapper { overflow-x: auto; border-radius: 8px; border: 1px solid var(--color-accent-blue); background: #0A1929; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; border: 1px solid #1A3451; text-align: left; font-size: 0.9rem; }
+        th { background: #4D3800; color: var(--color-accent-blue); text-transform: uppercase; font-weight: 800; }
+        tr:nth-child(even) { background-color: #0F2033; }
+        .text-allowed { color: #00CC00; font-weight: 700; }
+        .text-restricted { color: #FF3333; font-weight: 700; }
+
+        .branch-line { color: #475569; font-weight: bold; margin-right: 8px; }
+
         @media (max-width: 1024px) {
-            #desktop-sidebar { display: none; }
-            #mobile-menu-btn { display: block; }
+            .sidebar { width: 80px; padding: 0.5rem; }
+            .nav-btn span { display: none; }
+            .content-area { margin-left: 80px; }
+            .sidebar-text { display: none; }
         }
     </style>
 </head>
-<body class="flex">
+<body>
 
-    <nav id="desktop-sidebar" class="hidden lg:flex flex-col w-64 h-screen sticky top-0 bg-slate-900 border-r border-slate-800 p-6">
-        <h2 class="text-sky-400 font-bold mb-8 flex items-center gap-2">
-            <span class="w-3 h-3 bg-sky-500 rounded-full animate-pulse"></span> HRPB PORTAL
-        </h2>
-        <div class="flex flex-col gap-4 text-sm font-medium">
-            <a href="#search-area" class="text-slate-400 hover:text-white transition">🔍 Search Tool</a>
-            <a href="#guidelines" class="text-slate-400 hover:text-white transition">⚖️ Staff Guidelines</a>
-            <a href="#commands" class="text-slate-400 hover:text-white transition">⌨️ Command Usage</a>
-            <a href="#punishments" class="text-slate-400 hover:text-white transition">🔨 Punishment Matrix</a>
-            <a href="#ranks" class="text-slate-400 hover:text-white transition">📊 Rank Structure</a>
-            <a href="#cooldowns" class="text-slate-400 hover:text-white transition">⏳ Cooldowns</a>
-            <a href="#erlc-rules" class="text-slate-400 hover:text-white transition">🎮 ERLC Rules</a>
+    <header class="sticky-header h-[100px] flex items-center px-8">
+        <div class="w-full max-w-6xl mx-auto flex items-center gap-8">
+            <div class="hidden md:block shrink-0">
+                <h1 class="text-sky-400 font-black text-2xl tracking-tighter">HRPB</h1>
+            </div>
+            <div class="relative w-full">
+                <input type="text" id="staffSearch" onkeyup="searchHandbook()" placeholder="Search staff rules, commands, or punishments..." 
+                       class="w-full bg-slate-900 border-2 border-slate-700 rounded-full py-3 px-8 text-white focus:outline-none focus:border-sky-500 transition-all shadow-lg">
+                <div class="absolute right-6 top-3 text-slate-500">🔍</div>
+            </div>
         </div>
-    </nav>
+    </header>
 
-    <div id="mobile-menu" class="fixed inset-0 bg-slate-950 z-50 flex-col p-8 gap-6 hidden">
-        <button onclick="toggleMenu()" class="text-right text-3xl text-slate-400">&times;</button>
-        <a href="#guidelines" onclick="toggleMenu()" class="text-xl border-b border-slate-800 pb-2">Staff Guidelines</a>
-        <a href="#commands" onclick="toggleMenu()" class="text-xl border-b border-slate-800 pb-2">Command Usage</a>
-        <a href="#punishments" onclick="toggleMenu()" class="text-xl border-b border-slate-800 pb-2">Punishment Matrix</a>
-        <a href="#ranks" onclick="toggleMenu()" class="text-xl border-b border-slate-800 pb-2">Rank Structure</a>
-        <a href="#erlc-rules" onclick="toggleMenu()" class="text-xl border-b border-slate-800 pb-2">ERLC Rules</a>
+    <div class="main-container">
+        <nav class="sidebar">
+            <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4 px-2">Navigation</p>
+            <a href="#guidelines" class="nav-btn">⚖️ <span>Staff Guidelines</span></a>
+            <a href="#commands" class="nav-btn">⌨️ <span>Command Usage</span></a>
+            <a href="#punishments" class="nav-btn">🔨 <span>Punishment Matrix</span></a>
+            <a href="#ranks" class="nav-btn">📊 <span>Rank Structure</span></a>
+            <a href="#cooldowns" class="nav-btn">⏳ <span>Cooldowns</span></a>
+            <a href="#erlc-rules" class="nav-btn">🎮 <span>ERLC Rules</span></a>
+        </nav>
+
+        <main class="content-area">
+            
+            <section id="guidelines" class="mb-24 searchable-section">
+                <h2 class="text-3xl font-extrabold text-amber-400 border-b-2 border-sky-900 pb-2 mb-8 uppercase tracking-tighter">Staff Guidelines</h2>
+                <div class="space-y-4 bg-slate-900/40 p-6 rounded-xl border border-slate-800">
+                    <p class="searchable-item"><span class="text-allowed">✔</span> Rule 1: Staff are required to utilize spelling, punctuation and grammar at all times. (This includes capitalizing the start of sentences and putting periods at the ends of sentences).</p>
+                    <p class="searchable-item"><span class="text-allowed">✔</span> Rule 2: Staff must always maintain professionalism and respect for others.</p>
+                    <p class="searchable-item"><span class="text-restricted">✗</span> Rule 3: Staff cannot abuse the :h and :m commands. Only use these commands for announcements (e.g. `:h Blocking border lanes or honking and ramming at the border will result in moderation`).</p>
+                    <p class="searchable-item"><span class="text-allowed">✔</span> Rule 4: Staff must always use four or more letter commands. (e.g. `:view Jydx` ✔ `:kick jX` is not permitted).</p>
+                    <p class="searchable-item"><span class="text-allowed">✔</span> Rule 5: Staff must respond to mod calls. Failure to do so is considered a neglect of duty. You signed up for this job and you have to fulfill every responsibility.</p>
+                    <p class="searchable-item"><span class="text-restricted">✗</span> Rule 6: Staff may NOT use kill-logs as proof in an RDM situation. We only take clips, screenshots, and recordings as proof.</p>
+                    <p class="searchable-item"><span class="text-allowed">✔</span> Rule 7: Staff must always use correct uniforms and liveries.</p>
+                    <p class="searchable-item"><span class="text-allowed">✔</span> Rule 8: All staff should know the rules and review all staff documents (Punishment Section).</p>
+                    <p class="searchable-item"><span class="text-allowed">✔</span> Rule 9: Staff must have the correct callsign including their rank, and random numbers. (e.g. JM-120).</p>
+                    <p class="searchable-item"><span class="text-restricted">✗</span> Rule 10: Staff may not go AFK on duty, neither they can RP on-duty. If you are on duty, you should be moderating—not standing nor RP-ing.</p>
+                    <p class="searchable-item"><span class="text-allowed">✔</span> Rule 11: Staff must take proper measures to maintain a safe environment for all members.</p>
+                    <p class="searchable-item"><span class="text-restricted">✗</span> Rule 12: Staff cannot be disrespectful to anyone—including members. SHR and HR disrespect will lead to logged warnings.</p>
+                    <p class="searchable-item"><span class="text-allowed">✔</span> Rule 13: Staff must use common sense. Just because a rule isn't on here, doesn't mean you can do it.</p>
+                    <p class="searchable-item"><span class="text-restricted">✗</span> Rule 14: Staff cannot abuse their commands and use it in an unfair way that ruins the roleplay experience.</p>
+                    <p class="searchable-item"><span class="text-restricted">✗</span> Rule 15: Staff cannot use commands off duty unless you have the off-duty commands role or are ownership+.</p>
+                    <p class="searchable-item"><span class="text-restricted">✗</span> Rule 16: Staff must use 7+ letters of their username for kick or ban. If their username's short, then use the full username.</p>
+                </div>
+            </section>
+
+            <section id="commands" class="mb-24 searchable-section">
+                <h2 class="text-3xl font-extrabold text-amber-400 border-b-2 border-sky-900 pb-2 mb-8 uppercase tracking-tighter">Command Usage Restrictions</h2>
+                <div class="table-wrapper searchable-item">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Command</th>
+                                <th>MOD</th>
+                                <th>ADMIN</th>
+                                <th>SUPERVISOR</th>
+                                <th>MANAGEMENT</th>
+                                <th>LEADERSHIP</th>
+                                <th>SHR / BOD</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>:h command</td><td><span class="text-allowed">✔</span></td><td><span class="text-allowed">✔</span></td><td><span class="text-allowed">✔</span></td><td><span class="text-allowed">✔</span></td><td><span class="text-allowed">✔</span></td><td><span class="text-allowed">✔</span></td></tr>
+                            <tr><td>:kick command</td><td><span class="text-allowed">✔</span></td><td><span class="text-allowed">✔</span></td><td><span class="text-allowed">✔</span></td><td><span class="text-allowed">✔</span></td><td><span class="text-allowed">✔</span></td><td><span class="text-allowed">✔</span></td></tr>
+                            <tr><td>:jail command</td><td><span class="text-allowed">✔</span></td><td><span class="text-allowed">✔</span></td><td><span class="text-allowed">✔</span></td><td><span class="text-allowed">✔</span></td><td><span class="text-allowed">✔</span></td><td><span class="text-allowed">✔</span></td></tr>
+                            <tr><td>:ban command</td><td><span class="text-restricted">✗</span></td><td><span class="text-allowed">✔</span></td><td><span class="text-allowed">✔</span></td><td><span class="text-allowed">✔</span></td><td><span class="text-allowed">✔</span></td><td><span class="text-allowed">✔</span></td></tr>
+                            <tr><td>:kill command</td><td><span class="text-restricted">✗</span></td><td><span class="text-restricted">✗</span></td><td><span class="text-allowed">✔</span></td><td><span class="text-allowed">✔</span></td><td><span class="text-allowed">✔</span></td><td><span class="text-allowed">✔</span></td></tr>
+                            <tr><td>:down command</td><td><span class="text-restricted">✗</span></td><td><span class="text-restricted">✗</span></td><td><span class="text-allowed">✔</span></td><td><span class="text-allowed">✔</span></td><td><span class="text-allowed">✔</span></td><td><span class="text-allowed">✔</span></td></tr>
+                            <tr><td>:time / :weather</td><td><span class="text-restricted">✗</span></td><td><span class="text-restricted">✗</span></td><td><span class="text-restricted">✗</span></td><td><span class="text-allowed">✔</span></td><td><span class="text-allowed">✔</span></td><td><span class="text-allowed">✔</span></td></tr>
+                            <tr><td>:mod / :admin</td><td><span class="text-restricted">✗</span></td><td><span class="text-restricted">✗</span></td><td><span class="text-restricted">✗</span></td><td><span class="text-restricted">✗</span></td><td><span class="text-restricted">✗</span></td><td><span class="text-allowed">✔</span></td></tr>
+                            <tr><td>:pt / :helper</td><td><span class="text-restricted">✗</span></td><td><span class="text-restricted">✗</span></td><td><span class="text-restricted">✗</span></td><td><span class="text-restricted">✗</span></td><td><span class="text-restricted">✗</span></td><td><span class="text-allowed">✔</span></td></tr>
+                            <tr><td>:m command</td><td><span class="text-restricted">✗</span></td><td><span class="text-restricted">✗</span></td><td><span class="text-restricted">✗</span></td><td><span class="text-restricted">✗</span></td><td><span class="text-restricted">✗</span></td><td><span class="text-restricted">✗</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="punishments" class="mb-24 searchable-section">
+                <h2 class="text-3xl font-extrabold text-amber-400 border-b-2 border-sky-900 pb-2 mb-8 uppercase tracking-tighter">Punishment Matrix</h2>
+                <div class="table-wrapper searchable-item">
+                    <table>
+                        <thead>
+                            <tr><th>Rule</th><th>Description</th><th>1st Time</th><th>2nd Time</th><th>Last Time</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>RDM</td><td>Engaging people in combat without RP reason</td><td>Warning</td><td>Kick (30m)</td><td>BAN</td></tr>
+                            <tr><td>VDM</td><td>Shooting cars and/or ramming purposefully</td><td>Warning</td><td>Kick (30m)</td><td>BAN</td></tr>
+                            <tr><td>Staff RDM</td><td>Engaging staff in combat</td><td>BAN</td><td>&ndash;</td><td>&ndash;</td></tr>
+                            <tr><td>Mass RDM</td><td>Killing 2 or more people for no reason</td><td>BAN</td><td>&ndash;</td><td>&ndash;</td></tr>
+                            <tr><td>Staff Evasion</td><td>Running from staff to avoid punishment</td><td>KICK (15m)</td><td>KICK (30m)</td><td>BAN</td></tr>
+                            <tr><td>New Life Rule</td><td>Returning to seek revenge after dying</td><td>WARNING</td><td>KICK</td><td>BAN</td></tr>
+                            <tr><td>Fail Roleplay</td><td>Unrealistic actions (shooting for no reason)</td><td>WARNING</td><td>KICK (15m)</td><td>BAN</td></tr>
+                            <tr><td>Leave to Avoid</td><td>Leaving the game to avoid staff punishment</td><td>BAN</td><td>&ndash;</td><td>&ndash;</td></tr>
+                            <tr><td>GTA Driving</td><td>Driving unrealistically and not safely</td><td>WARNING</td><td>KICK (15m)</td><td>BAN</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="ranks" class="mb-24 searchable-section">
+                <h2 class="text-3xl font-extrabold text-amber-400 border-b-2 border-sky-900 pb-2 mb-8 uppercase tracking-tighter">Rank Structure</h2>
+                <div class="bg-slate-900 p-8 rounded-2xl border border-slate-800 font-mono text-sm searchable-item">
+                    <p class="text-sky-400 font-bold mb-4">@Founder</p>
+                    <p class="text-slate-700">▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬</p>
+                    <p class="text-sky-300 font-bold mt-4">@Ownership Team</p>
+                    <p>@Owner - 1</p>
+                    <p><span class="branch-line">⠀⠀⠀➥</span>@Co-Owner - 3</p>
+                    <p><span class="branch-line">⠀⠀⠀ ⠀⠀⠀➥</span>@Trial Ownership - 2</p>
+                    <p class="text-slate-700 my-4">▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬</p>
+                    <p class="text-amber-400 font-bold mt-4">@Board of Directors</p>
+                    <p>@Director of Staff Team - 1</p>
+                    <p><span class="branch-line">⠀⠀⠀➥</span>@Deputy Director - 2</p>
+                    <p><span class="branch-line">⠀⠀⠀⠀⠀⠀➥</span>@Assistant Director - 3</p>
+                    <p class="text-slate-600 my-4">╾────────────────╼╾────────────────╼</p>
+                    <p class="text-sky-400 font-bold">@Executive Team</p>
+                    <p>@Senior Executive - 4</p>
+                    <p><span class="branch-line">⠀⠀⠀➥</span>@Junior Executive - 4 <span class="rank-tag bg-red-900 text-red-200">@SHR</span></p>
+                </div>
+            </section>
+
+            <section id="cooldowns" class="mb-24 searchable-section">
+                <h2 class="text-3xl font-extrabold text-amber-400 border-b-2 border-sky-900 pb-2 mb-8 uppercase tracking-tighter">Promotion Cooldowns</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 searchable-item">
+                    <div class="bg-slate-900 p-6 rounded-xl border border-slate-800">
+                        <ul class="space-y-4">
+                            <li class="flex justify-between border-b border-slate-800 pb-2"><span>Board of Directors</span> <span class="text-amber-400 font-bold">15 Days</span></li>
+                            <li class="flex justify-between border-b border-slate-800 pb-2"><span>Executive Team</span> <span class="text-sky-400">13 Days</span></li>
+                            <li class="flex justify-between border-b border-slate-800 pb-2"><span>Leadership Team</span> <span class="text-sky-400">11 Days</span></li>
+                        </ul>
+                    </div>
+                    <div class="bg-slate-900 p-6 rounded-xl border border-slate-800">
+                        <ul class="space-y-4">
+                            <li class="flex justify-between border-b border-slate-800 pb-2"><span>Management Team</span> <span class="text-sky-400">9 Days</span></li>
+                            <li class="flex justify-between border-b border-slate-800 pb-2"><span>Supervisory Team</span> <span class="text-sky-400">7 Days</span></li>
+                            <li class="flex justify-between"><span>Ownership Team</span> <span class="text-green-500 font-black uppercase">Exempt</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section id="erlc-rules" class="mb-24 searchable-section">
+                <h2 class="text-3xl font-extrabold text-amber-400 border-b-2 border-sky-900 pb-2 mb-8 uppercase tracking-tighter">ERLC Private Server Rules</h2>
+                <div class="grid gap-4">
+                    <div class="p-5 rounded-lg enforced-rule searchable-item"><strong>Rule 1 | FRP:</strong> All roleplays must withhold a realistic standard and you must not do anything that could be deemed as unrealistic.</div>
+                    <div class="p-5 rounded-lg enforced-rule searchable-item"><strong>Rule 2 | VDM:</strong> Vehicle deathmatch is not allowed. This means you are not to shoot other vehicles without a valid reason to do so.</div>
+                    <div class="p-5 rounded-lg enforced-rule searchable-item"><strong>Rule 3 | RDM:</strong> Random Deathmatch is not allowed. This means you are not to shoot or kill anyone without a valid reason to do so.</div>
+                    <div class="p-5 rounded-lg standard-rule searchable-item"><strong>Rule 4 | Gun Motion:</strong> Must use gun motion like "grabs gun" for every weapon except pistol/taser when pulling on LEO.</div>
+                    <div class="p-5 rounded-lg enforced-rule searchable-item"><strong>Rule 5 | Realistic Avatars:</strong> Your avatar must be realistic. Any morphs of heads or bodies are not allowed.</div>
+                    <div class="p-5 rounded-lg enforced-rule searchable-item"><strong>Rule 6 | New Life Rule:</strong> Once arrested or dead, you have no previous memory and cannot RP with that character again.</div>
+                    <div class="p-5 rounded-lg enforced-rule searchable-item"><strong>Rule 7 | Team Creation:</strong> Creation of smaller teams like CIA/FBI isn't allowed. Apply via Discord.</div>
+                    <div class="p-5 rounded-lg enforced-rule searchable-item"><strong>Rule 8 | Realistic Driving:</strong> You must drive realistically and roleplay all crashes no matter the speed.</div>
+                    <div class="p-5 rounded-lg enforced-rule searchable-item"><strong>Rule 9 | Fear RP:</strong> Fear RP is always in effect. If someone points a weapon at you, you must comply.</div>
+                    <div class="p-5 rounded-lg enforced-rule searchable-item"><strong>Rule 10 | Detain Requests:</strong> You must always accept detain requests. If unjustified, call staff afterwards.</div>
+                    <div class="p-5 rounded-lg standard-rule searchable-item"><strong>Rule 11 | Pointless Open Carrying:</strong> Pointlessly carrying a gun for attention is not allowed.</div>
+                    <div class="p-5 rounded-lg enforced-rule searchable-item"><strong>Rule 12 | Cop Baiting:</strong> Strictly forbidden. Do not start pointless pursuits just because a cop is behind you.</div>
+                    <div class="p-5 rounded-lg enforced-rule searchable-item"><strong>Rule 13 | Robberies:</strong> 5-minute wait time between robberies. Bank robberies require staff permission.</div>
+                    <div class="p-5 rounded-lg enforced-rule searchable-item"><strong>Rule 14 | Interrupting Roleplays:</strong> Do not interfere with ongoing roleplays.</div>
+                    <div class="p-5 rounded-lg standard-rule searchable-item"><strong>Rule 15 | Priorities:</strong> No criminal activity allowed while a priority is active.</div>
+                    <div class="p-5 rounded-lg standard-rule searchable-item"><strong>Rule 16 | Pointless Pursuits:</strong> You must have a valid reason to initiate a pursuit.</div>
+                    <div class="p-5 rounded-lg standard-rule searchable-item"><strong>Rule 17 | Group Limits:</strong> Groups of more than 4 for crimes, or more than 3 for jewelry store are not allowed.</div>
+                    <div class="p-5 rounded-lg enforced-rule searchable-item"><strong>Rule 18 | SWAT Gear:</strong> Gear like battering rams or G36C not allowed if not trained in SWAT.</div>
+                    <div class="p-5 rounded-lg standard-rule searchable-item"><strong>Rule 19 | VC:</strong> If VC startup is selected, you must have a working mic and be in Discord VC.</div>
+                    <div class="p-5 rounded-lg enforced-rule searchable-item"><strong>Rule 20 | Safe Areas:</strong> No crimes at Fire Station, LEO spawns, or DOT station.</div>
+                    <div class="p-5 rounded-lg enforced-rule searchable-item"><strong>Rule 21 | Uniforms & Liveries:</strong> Official department uniforms and liveries must be used.</div>
+                    <div class="p-5 rounded-lg enforced-rule searchable-item"><strong>Rule 22 | Yielding to Staff:</strong> If a staff car has lights on behind you, you must stop or pull over.</div>
+                    <div class="p-5 rounded-lg standard-rule searchable-item"><strong>Rule 23 | Display Names:</strong> Realistic character names required. No inappropriate names or claiming staff rank.</div>
+                    <div class="p-5 rounded-lg caution-rule searchable-item"><strong>Rule 24 | Respawning:</strong> Wait 2 mins for EMS before respawning. If LEO involved, call mod for heal to resume custody.</div>
+                </div>
+            </section>
+        </main>
     </div>
 
-    <main class="flex-1 p-4 md:p-12 lg:ml-0">
-        <div class="lg:hidden flex justify-between items-center mb-8">
-            <h1 class="text-sky-400 font-bold">HRPB</h1>
-            <button onclick="toggleMenu()" class="p-2 bg-slate-800 rounded-lg">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-            </button>
-        </div>
-
-        <section id="search-area" class="mb-16">
-            <div class="text-center mb-8">
-                <h1 class="text-4xl font-extrabold text-white mb-2">HIGH ROCK PARK BORDER</h1>
-                <p class="text-slate-500">Official Staff Standards & Enforcement Portal</p>
-            </div>
-            <input type="text" id="staffSearch" onkeyup="searchHandbook()" placeholder="Search anything (e.g. 'FRP', 'Junior Mod', ':kick')..." 
-                   class="w-full bg-slate-900 border border-slate-700 rounded-xl py-4 px-6 text-slate-200 focus:ring-2 focus:ring-sky-500 shadow-2xl transition-all">
-        </section>
-
-        <section id="guidelines" class="mb-20 searchable-section">
-            <h2 class="text-2xl font-bold text-amber-400 border-b border-sky-900 pb-2 mb-6 uppercase">⚖️ Staff Guidelines</h2>
-            <div class="bg-slate-900/50 p-6 rounded-xl border border-slate-800 space-y-4">
-                <p class="searchable-item"><span class="text-green-500 font-bold">✔</span> Rule 1: Staff are required to utilize spelling, punctuation and grammar at all times.</p>
-                <p class="searchable-item"><span class="text-green-500 font-bold">✔</span> Rule 2: Staff must always maintain professionalism and respect for others.</p>
-                <p class="searchable-item"><span class="text-red-500 font-bold">✗</span> Rule 3: Staff cannot abuse :h and :m commands. Only for official border announcements.</p>
-                <p class="searchable-item"><span class="text-green-500 font-bold">✔</span> Rule 4: Staff must use four or more letter commands (e.g., :view Jydx).</p>
-                <p class="searchable-item"><span class="text-green-500 font-bold">✔</span> Rule 5: Staff must respond to mod calls. Failure is neglect of duty.</p>
-                <p class="searchable-item"><span class="text-red-500 font-bold">✗</span> Rule 6: Kill-logs are NOT proof. Clips or screenshots only.</p>
-                <p class="searchable-item"><span class="text-green-500 font-bold">✔</span> Rule 7: Staff must use correct department liveries and uniforms.</p>
-                <p class="searchable-item"><span class="text-green-500 font-bold">✔</span> Rule 8: Staff must review the Punishment Section regularly.</p>
-                <p class="searchable-item"><span class="text-green-500 font-bold">✔</span> Rule 9: Must have correct rank callsigns (e.g., JM-120).</p>
-                <p class="searchable-item"><span class="text-red-500 font-bold">✗</span> Rule 10: No AFK on duty. No roleplaying while on moderation duty.</p>
-                <p class="searchable-item"><span class="text-red-500 font-bold">✗</span> Rule 12: Disrespect to SHR/HR will lead to logged warnings.</p>
-                <p class="searchable-item"><span class="text-red-500 font-bold">✗</span> Rule 14: No command abuse to ruin roleplay experiences.</p>
-                <p class="mt-6 text-red-500 font-bold italic text-center">VIOLATION OF THESE RULES RESULTS IN IMMEDIATE TERMINATION.</p>
-            </div>
-        </section>
-
-        <section id="commands" class="mb-20 searchable-section">
-            <h2 class="text-2xl font-bold text-amber-400 border-b border-sky-900 pb-2 mb-6 uppercase">⌨️ Command Usage Restrictions</h2>
-            <div class="overflow-x-auto searchable-item">
-                <table>
-                    <thead>
-                        <tr><th>Command</th><th>MOD</th><th>ADMIN</th><th>SUPV</th><th>MGMT</th><th>LDRSHP</th><th>SHR/BOD</th></tr>
-                    </thead>
-                    <tbody>
-                        <tr><td>:h / :kick</td><td>✔</td><td>✔</td><td>✔</td><td>✔</td><td>✔</td><td>✔</td></tr>
-                        <tr><td>:jail / :ban</td><td>✗</td><td>✔</td><td>✔</td><td>✔</td><td>✔</td><td>✔</td></tr>
-                        <tr><td>:kill / :down</td><td>✗</td><td>✗</td><td>✔</td><td>✔</td><td>✔</td><td>✔</td></tr>
-                        <tr><td>:time / :weather</td><td>✗</td><td>✗</td><td>✗</td><td>✔</td><td>✔</td><td>✔</td></tr>
-                        <tr><td>:mod / :admin</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td>✔</td></tr>
-                        <tr><td>:pt / :helper</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td>✔</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-        <section id="punishments" class="mb-20 searchable-section">
-            <h2 class="text-2xl font-bold text-amber-400 border-b border-sky-900 pb-2 mb-6 uppercase">🔨 Punishment Matrix</h2>
-            <div class="overflow-x-auto searchable-item">
-                <table>
-                    <thead>
-                        <tr><th>Violation</th><th>Description</th><th>1st</th><th>2nd</th><th>3rd</th></tr>
-                    </thead>
-                    <tbody>
-                        <tr><td>RDM</td><td>Combat without RP reason</td><td>Warn</td><td>Kick</td><td>BAN</td></tr>
-                        <tr><td>VDM</td><td>Purposeful ramming/shooting cars</td><td>Warn</td><td>Kick</td><td>BAN</td></tr>
-                        <tr><td>Staff RDM</td><td>Attacking staff members</td><td>BAN</td><td>-</td><td>-</td></tr>
-                        <tr><td>Evasion</td><td>Leaving to avoid punishment</td><td>BAN</td><td>-</td><td>-</td></tr>
-                        <tr><td>Fail RP</td><td>Unrealistic actions (shooting for no reason)</td><td>Warn</td><td>Kick</td><td>BAN</td></tr>
-                        <tr><td>TOS Break</td><td>Roblox Terms of Service Violation</td><td>BAN</td><td>-</td><td>-</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-        <section id="ranks" class="mb-20 searchable-section">
-            <h2 class="text-2xl font-bold text-amber-400 border-b border-sky-900 pb-2 mb-6 uppercase">📊 Rank Structure</h2>
-            <div class="bg-slate-900 p-8 rounded-2xl border border-slate-800 font-mono text-sm searchable-item">
-                <p class="text-sky-400 font-bold mb-4">@Founder</p>
-                <p class="text-slate-700">▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬</p>
-                <p class="text-sky-300 font-bold mt-4">@Ownership Team</p>
-                <p>@Owner - 1</p>
-                <p><span class="branch-line">⠀⠀⠀➥</span>@Co-Owner - 3</p>
-                <p><span class="branch-line">⠀⠀⠀ ⠀⠀⠀➥</span>@Trial Ownership - 2</p>
-                <p class="text-slate-700">▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬</p>
-                <p class="text-amber-400 font-bold mt-4">@Board of Directors</p>
-                <p>@Director of Staff Team - 1</p>
-                <p><span class="branch-line">⠀⠀⠀➥</span>@Deputy Director - 2</p>
-                <p><span class="branch-line">⠀⠀⠀⠀⠀⠀➥</span>@Assistant Director - 3</p>
-                <p class="text-slate-700">▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬</p>
-                <p class="text-sky-400 font-bold mt-4">@Executive Team</p>
-                <p>@Senior Executive - 4</p>
-                <p><span class="branch-line">⠀⠀⠀➥</span>@Junior Executive - 4 <span class="rank-tag bg-red-900 text-red-200">@SHR</span> <span class="rank-tag bg-blue-900 text-blue-200">@Promo Perms</span></p>
-            </div>
-        </section>
-
-        <section id="cooldowns" class="mb-20 searchable-section">
-            <h2 class="text-2xl font-bold text-amber-400 border-b border-sky-900 pb-2 mb-6 uppercase">⏳ Cooldowns</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 searchable-item">
-                <div class="bg-slate-900 p-6 rounded-xl border border-slate-800">
-                    <p class="flex justify-between mb-2"><span>Board of Directors</span> <span class="text-amber-400">15 Days</span></p>
-                    <p class="flex justify-between mb-2"><span>Executive Team</span> <span class="text-sky-400">13 Days</span></p>
-                    <p class="flex justify-between"><span>Leadership Team</span> <span class="text-sky-400">11 Days</span></p>
-                </div>
-                <div class="bg-slate-900 p-6 rounded-xl border border-slate-800">
-                    <p class="flex justify-between mb-2"><span>Supervisory Team</span> <span class="text-sky-400">7 Days</span></p>
-                    <p class="flex justify-between mb-2"><span>Moderation Team</span> <span class="text-sky-400">3 Days</span></p>
-                    <p class="flex justify-between"><span class="text-slate-500 italic">Ownership Team</span> <span class="text-green-500 font-bold">EXEMPT</span></p>
-                </div>
-            </div>
-        </section>
-
-        <section id="erlc-rules" class="mb-20 searchable-section">
-            <h2 class="text-2xl font-bold text-amber-400 border-b border-sky-900 pb-2 mb-6 uppercase">🎮 ERLC Private Server Rules</h2>
-            <div class="grid gap-3">
-                <div class="p-4 rounded-lg enforced-rule searchable-item"><strong>Rule 1 | FRP:</strong> All roleplays must withhold a realistic standard.</div>
-                <div class="p-4 rounded-lg enforced-rule searchable-item"><strong>Rule 2 | VDM:</strong> Vehicle deathmatch is not allowed.</div>
-                <div class="p-4 rounded-lg enforced-rule searchable-item"><strong>Rule 3 | RDM:</strong> Random Deathmatch is not allowed.</div>
-                <div class="p-4 rounded-lg enforced-rule searchable-item"><strong>Rule 5 | Realistic Avatars:</strong> Avatars must be realistic. No morphs.</div>
-                <div class="p-4 rounded-lg enforced-rule searchable-item"><strong>Rule 6 | NLR:</strong> Do not remember previous lives after death/arrest.</div>
-                <div class="p-4 rounded-lg enforced-rule searchable-item"><strong>Rule 7 | Teams:</strong> Creation of external teams (CIA/FBI) is not allowed.</div>
-                <div class="p-4 rounded-lg enforced-rule searchable-item"><strong>Rule 8 | Driving:</strong> Drive realistically; roleplay all crashes.</div>
-                <div class="p-4 rounded-lg enforced-rule searchable-item"><strong>Rule 10 | Detains:</strong> Always accept detain requests.</div>
-                <div class="p-4 rounded-lg enforced-rule searchable-item"><strong>Rule 12 | Cop Baiting:</strong> No pointless pursuit initiation.</div>
-                <div class="p-4 rounded-lg enforced-rule searchable-item"><strong>Rule 13 | Robberies:</strong> 5 Min wait time. Bank needs staff permission.</div>
-                <div class="p-4 rounded-lg enforced-rule searchable-item"><strong>Rule 18 | SWAT:</strong> No SWAT gear without official training.</div>
-                <div class="p-4 rounded-lg enforced-rule searchable-item"><strong>Rule 21 | Uniforms:</strong> Official liveries/uniforms only.</div>
-                <div class="p-4 rounded-lg caution-rule searchable-item"><strong>Rule 24 | Respawning:</strong> Wait 2 mins for EMS. Call mod if LEO involved.</div>
-            </div>
-        </section>
-
-        <footer class="text-center text-slate-600 text-xs mt-20 pb-10">
-            <p>Document Code: [RASM-000000 00000003] | Updated: 13-02-2026</p>
-        </footer>
-    </main>
-
     <script>
-        function toggleMenu() {
-            const menu = document.getElementById('mobile-menu');
-            menu.classList.toggle('hidden');
-            menu.classList.toggle('flex');
-        }
-
         function searchHandbook() {
             const query = document.getElementById('staffSearch').value.toLowerCase();
             const items = document.querySelectorAll('.searchable-item');
@@ -216,8 +272,8 @@
                 const text = item.textContent.toLowerCase();
                 if (text.includes(query)) {
                     item.style.display = 'block';
-                    if (query.length > 0) item.classList.add('ring-1', 'ring-sky-500/50');
-                    else item.classList.remove('ring-1', 'ring-sky-500/50');
+                    if (query.length > 0) item.classList.add('ring-4', 'ring-sky-500/20');
+                    else item.classList.remove('ring-4', 'ring-sky-500/20');
                 } else {
                     item.style.display = 'none';
                 }
